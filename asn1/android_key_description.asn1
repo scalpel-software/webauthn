@@ -1,0 +1,56 @@
+AndroidKeyDescription DEFINITIONS IMPLICIT TAGS ::=
+
+BEGIN
+EXPORTS AndroidKeyDescription;
+
+AndroidKeyDescription ::= SEQUENCE {
+    keymasterVersion  INTEGER,
+    attestationChallenge  OCTET STRING,
+    softwareEnforced  AuthorizationList,
+    teeEnforced  AuthorizationList,
+    uniqueId  OCTET STRING OPTIONAL
+}
+
+AuthorizationList ::= SEQUENCE {
+    purpose [1] EXPLICIT SET OF INTEGER OPTIONAL,
+    algorithm  [2] EXPLICIT INTEGER OPTIONAL,
+    keySize [3] EXPLICIT INTEGER OPTIONAL,
+    blockMode  [4] EXPLICIT SET OF INTEGER OPTIONAL,
+    digest  [5] EXPLICIT SET OF INTEGER OPTIONAL,
+    padding [6] EXPLICIT SET OF INTEGER OPTIONAL,
+    callerNonce [7] EXPLICIT NULL OPTIONAL,
+    minMacLength  [8] EXPLICIT INTEGER OPTIONAL,
+    kdf [9] EXPLICIT SEQUENCE OF INTEGER OPTIONAL,
+    ecCurve [10] EXPLICIT INTEGER OPTIONAL,
+    rsaPublicExponent  [200] EXPLICIT INTEGER OPTIONAL,
+    eciesSingleHashMode [201] EXPLICIT NULL OPTIONAL,
+    includeUniqueId [202] EXPLICIT NULL OPTIONAL,
+    blobUsageRequirement  [301] EXPLICIT INTEGER OPTIONAL,
+    bootloaderOnly  [302] EXPLICIT NULL OPTIONAL,
+    activeDateTime  [400] EXPLICIT INTEGER OPTIONAL,
+    originationExpireDateTime  [401] EXPLICIT INTEGER OPTIONAL,
+    usageExpireDateTime  [402] EXPLICIT INTEGER OPTIONAL,
+    minSecondsBetweenOps  [403] EXPLICIT INTEGER OPTIONAL,
+    maxUsesPerBoot  [404] EXPLICIT INTEGER OPTIONAL,
+    noAuthRequired  [503] EXPLICIT NULL OPTIONAL,
+    userAuthType  [504] EXPLICIT INTEGER OPTIONAL,
+    authTimeout  [505] EXPLICIT INTEGER OPTIONAL,
+    allApplications  [600] EXPLICIT NULL OPTIONAL,
+    applicationId  [601] EXPLICIT OCTET STRING OPTIONAL,
+    applicationData  [700] EXPLICIT OCTET STRING OPTIONAL,
+    creationDateTime  [701] EXPLICIT INTEGER OPTIONAL,
+    origin  [702] EXPLICIT INTEGER OPTIONAL,
+    rollbackResistant  [703] EXPLICIT NULL OPTIONAL,
+    rootOfTrust  [704] EXPLICIT RootOfTrust OPTIONAL,
+    osVersion  [705] EXPLICIT INTEGER OPTIONAL,
+    patchLevel  [706] EXPLICIT INTEGER OPTIONAL,
+    uniqueId  [707] EXPLICIT NULL OPTIONAL
+}
+
+RootOfTrust ::= SEQUENCE {
+   verifiedBootKey OCTET STRING,
+   osVersion  INTEGER,
+   patchMonthYear  INTEGER
+}
+
+END
