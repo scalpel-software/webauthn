@@ -12,6 +12,7 @@ defmodule Webauthn.Authentication.Response do
   #   "challenge" => challenge,
   #   "origin" => origin,
   #   "rp" => %{"id" => rp_id},
+  #   "userHandle" => user,
   #   "userVerification" => "preferred" | "required" | "discouraged",
   # }
 
@@ -22,6 +23,7 @@ defmodule Webauthn.Authentication.Response do
   #     "authenticatorData" => auth_data,
   #     "clientDataJSON" => json,
   #     "signature" => signature,
+  #     "userHandle" => handle
   #   }
   # }
 
@@ -38,6 +40,7 @@ defmodule Webauthn.Authentication.Response do
          :ok <- rp_id_hash?(request, auth_data),
          :ok <- user_present?(auth_data),
          :ok <- user_verified?(request, auth_data),
+         :ok <- user_handle?(request["userHandle"], params["userHandle"]),
          :ok <- extensions?(auth_data),
          cdata_hash <- :crypto.hash(:sha256, cdata),
          stored_public_key <- Map.get(credential, @public_key, nil),
@@ -148,6 +151,16 @@ defmodule Webauthn.Authentication.Response do
   end
 
   def user_verified?(_, _), do: :ok
+
+  def user_handle?(request, response) when not is_nil(request) and not is_nil(response) do
+    if Webauthn.Utils.Crypto.secure_compare(request, response) do
+      :ok
+    else
+      {:error, "User handle does not match value provided by the server"}
+    end
+  end
+
+  def user_handle?(_, _), do: :ok
 
   # In the future we will do more extension verification
   def extensions?(%{extension_included: 1, extensions: exts}) do
