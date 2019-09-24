@@ -41,7 +41,7 @@ defmodule Webauthn.AttestationStatement.TPM do
   end
 
   def verify(%{"x5c" => x5c} = att_stmt, auth_data, client_hash) do
-    with att_to_be_signed <- auth_data.raw_bytes <> client_hash,
+    with att_to_be_signed <- auth_data.raw_data <> client_hash,
          {:ok, cert_info} <- parse_cert(att_stmt),
          {:ok, digest} <- Webauthn.Cose.digest_for(att_stmt["alg"]),
          {:ok, auth_public_key} <- Webauthn.Cose.to_public_key(auth_data),

@@ -18,7 +18,7 @@ defmodule Webauthn.AttestationStatement.Packed do
     with {:ok, [leaf_cert | tail]} <- certification_chain_for(x5c),
          {:ok, public_key} <- X509.Certificate.public_key(leaf_cert),
          {:ok, digest} <- Webauthn.Cose.digest_for(alg),
-         :ok <- verify_x5c(auth_data.raw_bytes <> client_hash, digest, sig, public_key),
+         :ok <- verify_x5c(auth_data.raw_data <> client_hash, digest, sig, public_key),
          :ok <- check_cert_version(leaf_cert),
          :ok <- check_cert_subject_format(leaf_cert),
          :ok <- check_cert_country_code(leaf_cert),
@@ -33,7 +33,7 @@ defmodule Webauthn.AttestationStatement.Packed do
   # self attestation
   def verify(%{"alg" => alg, "sig" => sig}, auth_data, client_hash) do
     with :ok <- check_algorithms(alg, auth_data),
-         message <- auth_data.raw_bytes <> client_hash,
+         message <- auth_data.raw_data <> client_hash,
          {:ok, public_key} <- Webauthn.Cose.to_public_key(auth_data),
          {:ok, digest} <- Webauthn.Cose.digest_for(alg),
          :ok <- check_self_signature(message, digest, sig, public_key) do
