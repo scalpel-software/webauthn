@@ -53,7 +53,7 @@ defmodule Webauthn.AttestationStatement.TPM do
          :ok <- check_magic_field(cert_info),
          :ok <- check_type_field(cert_info),
          :ok <- check_extra_data(cert_info, att_to_be_signed, digest),
-         :ok <- check_public_key(auth_public_key, pub_area),
+         :ok <- check_public_key(auth_public_key, pub_area_to_public_key(pub_area)),
          :ok <- check_attested_name(cert_info, attested_name),
          :ok <- check_signature(att_stmt["certInfo"], digest, att_stmt["sig"], leaf_public_key),
          :ok <- check_aik_version(leaf_cert),
@@ -200,8 +200,8 @@ defmodule Webauthn.AttestationStatement.TPM do
     end
   end
 
-  defp check_public_key(public_key, pub_area) do
-    if match?(public_key, pub_area_to_public_key(pub_area)) do
+  defp check_public_key(public_key, pub_area_public_key) do
+    if match?(public_key, pub_area_public_key) do
       :ok
     else
       {:error, "TPM: Auth data public key does not match pub area"}

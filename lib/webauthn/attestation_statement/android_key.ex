@@ -18,7 +18,8 @@ defmodule Webauthn.AttestationStatement.AndroidKey do
          {:ok, digest} <- Webauthn.Cose.digest_for(alg),
          public_key <- X509.Certificate.public_key(cert),
          :ok <- valid_signature?(sig, digest, auth_data.raw_data <> client_hash, public_key),
-         :ok <- matching_public_key?(auth_data, public_key),
+         {:ok, auth_public_key} <- Webauthn.Cose.to_public_key(auth_data),
+         :ok <- matching_public_key?(auth_public_key, public_key),
          {:ok, key_description} <- find_key_description(cert),
          :ok <- matching_challenge?(key_description, client_hash),
          :ok <- all_applications_not_present?(key_description),
@@ -45,18 +46,10 @@ defmodule Webauthn.AttestationStatement.AndroidKey do
     end
   end
 
-  defp matching_public_key?(auth_data, public_key) do
-    if match?(find_public_key(auth_data), public_key) do
-      :ok
-    else
-      {:error, "Android Key: Public key mismatch"}
-    end
-  end
-
-  defp find_public_key(auth_data) do
-    case Webauthn.Cose.to_public_key(auth_data) do
-      {:ok, public_key} -> public_key
-      :error -> :error
+  defp matching_public_key?(auth_public_key, public_key) do
+    case auth_public_key do
+      ^public_key -> :ok
+      _other -> {:error, "Android Key: Public key mismatch"}
     end
   end
 
@@ -130,7 +123,10 @@ defmodule Webauthn.AttestationStatement.AndroidKey do
   end
 
   defp origin?(auth_list) do
-    match?(elem(auth_list, @origin_position), @km_origin_generated)
+    case elem(auth_list, @origin_position) do
+      @km_origin_generated -> true
+      _other -> false
+    end
   end
 
   defp purpose?(auth_list) do
