@@ -46,7 +46,7 @@ defmodule Webauthn.AttestationStatement.AndroidKey do
   end
 
   defp matching_public_key?(auth_data, public_key) do
-    if find_public_key(auth_data) == public_key do
+    if match?(find_public_key(auth_data), public_key) do
       :ok
     else
       {:error, "Android Key: Public key mismatch"}
@@ -130,7 +130,7 @@ defmodule Webauthn.AttestationStatement.AndroidKey do
   end
 
   defp origin?(auth_list) do
-    elem(auth_list, @origin_position) == @km_origin_generated
+    match?(elem(auth_list, @origin_position), @km_origin_generated)
   end
 
   defp purpose?(auth_list) do
