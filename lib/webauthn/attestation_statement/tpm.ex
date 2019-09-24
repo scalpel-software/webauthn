@@ -201,10 +201,9 @@ defmodule Webauthn.AttestationStatement.TPM do
   end
 
   defp check_public_key(public_key, pub_area_public_key) do
-    if match?(public_key, pub_area_public_key) do
-      :ok
-    else
-      {:error, "TPM: Auth data public key does not match pub area"}
+    case public_key do
+      ^pub_area_public_key -> :ok
+      _other -> {:error, "TPM: Auth data public key does not match pub area"}
     end
   end
 
