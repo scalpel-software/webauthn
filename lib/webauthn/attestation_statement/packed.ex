@@ -18,12 +18,12 @@ defmodule Webauthn.AttestationStatement.Packed do
     with {:ok, [leaf_cert | tail]} <- certification_chain_for(x5c),
          public_key <- X509.Certificate.public_key(leaf_cert),
          {:ok, digest} <- Webauthn.Cose.digest_for(alg),
-         :ok <- verify_x5c(auth_data.raw_data <> client_hash, digest, sig, public_key),
+         :ok <- verify_x5c(auth_data.raw_data <> client_hash, digest, tag_to_bytes(sig), public_key),
          :ok <- check_cert_version(leaf_cert),
          :ok <- check_cert_subject_format(leaf_cert),
          :ok <- check_cert_country_code(leaf_cert),
          :ok <- check_cert_extension(leaf_cert, auth_data),
-         :ok <- check_basic_contstraint(leaf_cert) do
+         :ok <- check_basic_constraint(leaf_cert) do
       {:ok, {:unknown, [leaf_cert | tail]}}
     else
       error -> error
@@ -60,10 +60,9 @@ defmodule Webauthn.AttestationStatement.Packed do
   end
 
   defp check_cert_version(cert) do
-    if X509.Certificate.version(cert) == :v3 do
-      :ok
-    else
-      {:error, "Packed: Invalid certificate version"}
+    case X509.Certificate.version(cert) do
+      :v3 -> :ok
+      _other -> {:error, "Packed: Invalid certificate version"}
     end
   end
 
@@ -111,7 +110,7 @@ defmodule Webauthn.AttestationStatement.Packed do
     end
   end
 
-  defp check_basic_contstraint(cert) do
+  defp check_basic_constraint(cert) do
     case X509.Certificate.extension(cert, @basic_constraint) do
       {:Extension, _, _, {:BasicConstraints, false, _}} -> :ok
       nil -> {:error, "Packed: Missing basic constraint extension"}
@@ -135,4 +134,7 @@ defmodule Webauthn.AttestationStatement.Packed do
       {:error, "Packed: Invalid signature"}
     end
   end
+
+  defp tag_to_bytes(%CBOR.Tag{tag: :bytes, value: value}), do: value
+  defp tag_to_bytes(value), do: value
 end

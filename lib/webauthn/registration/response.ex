@@ -1,6 +1,7 @@
 defmodule Webauthn.Registration.Response do
   alias Webauthn.{AuthenticatorData, AttestationStatement}
-  # Steps for Relaying Party to follow when registering a new credential
+
+  # Steps for Relying Party to follow when registering a new credential
   # https://www.w3.org/TR/webauthn/#registering-a-new-credential
   # https://fidoalliance.org/specs/fido-v2.0-rd-20180702/fido-server-v2.0-rd-20180702.html#intro
 

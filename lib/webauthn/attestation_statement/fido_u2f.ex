@@ -9,7 +9,7 @@ defmodule Webauthn.AttestationStatement.FidoU2F do
          :ok <- check_public_key(public_key),
          {:ok, public_key_u2f} <- ansi_x962(auth_data),
          verification_data <- build_verification_data(auth_data, client_hash, public_key_u2f),
-         :ok <- check_signature(verification_data, sig, public_key) do
+         :ok <- check_signature(verification_data, tag_to_bytes(sig), public_key) do
       {:ok, {:unknown, [certificate]}}
     else
       error -> error
@@ -56,15 +56,7 @@ defmodule Webauthn.AttestationStatement.FidoU2F do
 
   # We can hard code sha256 here, see github issue for reference
   # https://github.com/w3c/webauthn/issues/1279
-  defp check_signature(msg, %CBOR.Tag{tag: :bytes, value: sig}, public_key) do
-    if :public_key.verify(msg, :sha256, sig, public_key) do
-      :ok
-    else
-      {:error, "FidoU2F: Invalid signature"}
-    end
-  end
-
-  defp check_signature(msg, sig, public_key) when is_binary(sig) do
+  defp check_signature(msg, sig, public_key) do
     if :public_key.verify(msg, :sha256, sig, public_key) do
       :ok
     else
@@ -73,4 +65,7 @@ defmodule Webauthn.AttestationStatement.FidoU2F do
   end
 
   defp check_signature(_, _, _), do: {:error, "FidoU2F: Invalid signature"}
+
+  defp tag_to_bytes(%CBOR.Tag{tag: :bytes, value: value}), do: value
+  defp tag_to_bytes(value), do: value
 end

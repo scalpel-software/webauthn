@@ -17,7 +17,7 @@ defmodule Webauthn.AttestationStatement.AndroidKey do
     with {:ok, [cert | tail]} <- certification_chain_for(x5c),
          {:ok, digest} <- Webauthn.Cose.digest_for(alg),
          public_key <- X509.Certificate.public_key(cert),
-         :ok <- valid_signature?(sig, digest, auth_data.raw_data <> client_hash, public_key),
+         :ok <- valid_signature?(auth_data.raw_data <> client_hash, digest, tag_to_bytes(sig), public_key),
          {:ok, auth_public_key} <- Webauthn.Cose.to_public_key(auth_data),
          :ok <- matching_public_key?(auth_public_key, public_key),
          {:ok, key_description} <- find_key_description(cert),
@@ -38,8 +38,8 @@ defmodule Webauthn.AttestationStatement.AndroidKey do
     {:error, "Android Key: Certificate chain must return a list"}
   end
 
-  defp valid_signature?(signature, digest, data, public_key) do
-    if :public_key.verify(data, digest, signature, public_key) do
+  defp valid_signature?(message, digest, signature, public_key) do
+    if :public_key.verify(message, digest, signature, public_key) do
       :ok
     else
       {:error, "Android Key: Invalid signature"}
@@ -132,4 +132,7 @@ defmodule Webauthn.AttestationStatement.AndroidKey do
   defp purpose?(auth_list) do
     @km_purpose_sign in List.wrap(elem(auth_list, @purpose_position))
   end
+
+  defp tag_to_bytes(%CBOR.Tag{tag: :bytes, value: value}), do: value
+  defp tag_to_bytes(value), do: value
 end

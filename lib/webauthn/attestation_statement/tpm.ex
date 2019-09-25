@@ -55,7 +55,7 @@ defmodule Webauthn.AttestationStatement.TPM do
          :ok <- check_extra_data(cert_info, att_to_be_signed, digest),
          :ok <- check_public_key(auth_public_key, pub_area_to_public_key(pub_area)),
          :ok <- check_attested_name(cert_info, attested_name),
-         :ok <- check_signature(att_stmt["certInfo"], digest, att_stmt["sig"], leaf_public_key),
+         :ok <- check_signature(tag_to_bytes(att_stmt["certInfo"]), digest, tag_to_bytes(att_stmt["sig"]), leaf_public_key),
          :ok <- check_aik_version(leaf_cert),
          :ok <- check_aik_subject_sequence(leaf_cert),
          :ok <- check_aik_validity(leaf_cert),
@@ -215,8 +215,8 @@ defmodule Webauthn.AttestationStatement.TPM do
     end
   end
 
-  defp check_signature(%CBOR.Tag{value: cert_info}, digest, sig, public_key) do
-    if :public_key.verify(cert_info, digest, sig, public_key) do
+  defp check_signature(message, digest, sig, public_key) do
+    if :public_key.verify(message, digest, sig, public_key) do
       :ok
     else
       {:error, "TPM: Invalid signature"}
@@ -340,4 +340,7 @@ defmodule Webauthn.AttestationStatement.TPM do
   defp name_alg_digest(@tpm_alg_sha384), do: :sha384
   defp name_alg_digest(@tpm_alg_sha512), do: :sha512
   defp name_alg_digest(_other), do: :__unknown__
+
+  defp tag_to_bytes(%CBOR.Tag{tag: :bytes, value: value}), do: value
+  defp tag_to_bytes(value), do: value
 end
