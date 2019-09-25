@@ -64,8 +64,6 @@ defmodule Webauthn.AttestationStatement.FidoU2F do
     end
   end
 
-  defp check_signature(_, _, _), do: {:error, "FidoU2F: Invalid signature"}
-
   defp tag_to_bytes(%CBOR.Tag{tag: :bytes, value: value}), do: value
   defp tag_to_bytes(value), do: value
 end
