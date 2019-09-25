@@ -16,7 +16,7 @@ defmodule Webauthn.AttestationStatement.Packed do
   # attestation type is not ECDAA
   def verify(%{"alg" => alg, "sig" => sig, "x5c" => x5c}, auth_data, client_hash) do
     with {:ok, [leaf_cert | tail]} <- certification_chain_for(x5c),
-         {:ok, public_key} <- X509.Certificate.public_key(leaf_cert),
+         public_key <- X509.Certificate.public_key(leaf_cert),
          {:ok, digest} <- Webauthn.Cose.digest_for(alg),
          :ok <- verify_x5c(auth_data.raw_data <> client_hash, digest, sig, public_key),
          :ok <- check_cert_version(leaf_cert),
