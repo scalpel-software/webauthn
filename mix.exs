@@ -7,7 +7,7 @@ defmodule Webauthn.MixProject do
   def project do
     [
       app: :webauthn,
-      version: "0.0.4",
+      version: "0.0.5",
       elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
       description: "Authenticate users to your web application using public key cryptography by becoming a webauthn relying party",
