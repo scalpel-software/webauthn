@@ -36,7 +36,7 @@ defmodule Webauthn.AttestationStatement.Packed do
          message <- auth_data.raw_data <> client_hash,
          {:ok, public_key} <- Webauthn.Cose.to_public_key(auth_data),
          {:ok, digest} <- Webauthn.Cose.digest_for(alg),
-         :ok <- check_self_signature(message, digest, sig, public_key) do
+         :ok <- check_self_signature(message, digest, tag_to_bytes(sig), public_key) do
       {:ok, {:self, nil}}
     else
       error -> error
