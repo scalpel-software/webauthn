@@ -96,7 +96,7 @@ defmodule Webauthn.Utils.Crypto do
   end
 
   defp secure_compare(<<x, left :: binary>>, <<y, right :: binary>>, acc) do
-    secure_compare(left, right, acc ||| (x ^^^ y))
+    secure_compare(left, right, acc ||| bxor(x, y))
   end
 
   defp secure_compare(<<>>, <<>>, acc), do: acc
