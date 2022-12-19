@@ -1,9 +1,9 @@
 defmodule Webauthn do
 
-  @auth_challenge Application.get_env(:webauthn, :auth_challenge, Webauthn.Authentication.Challenge)
-  @auth_response Application.get_env(:webauthn, :auth_response, Webauthn.Authentication.Response)
-  @reg_challenge Application.get_env(:webauthn, :registration_challenge, Webauthn.Registration.Challenge)
-  @reg_response Application.get_env(:webauthn, :registration_response, Webauthn.Registration.Response)
+  @auth_challenge Application.compile_env(:webauthn, :auth_challenge, Webauthn.Authentication.Challenge)
+  @auth_response Application.compile_env(:webauthn, :auth_response, Webauthn.Authentication.Response)
+  @reg_challenge Application.compile_env(:webauthn, :registration_challenge, Webauthn.Registration.Challenge)
+  @reg_response Application.compile_env(:webauthn, :registration_response, Webauthn.Registration.Response)
 
   def challenge do
     Base.url_encode64(:crypto.strong_rand_bytes(32), padding: false)

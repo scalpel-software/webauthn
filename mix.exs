@@ -32,9 +32,9 @@ defmodule Webauthn.MixProject do
   # {:asn1ex, git: "git://github.com/vicentfg/asn1ex.git"}
   defp deps do
     [
-      {:jason, "~> 1.2"},
+      {:jason, "~> 1.4"},
       {:x509, "~> 0.8"},
-      {:certifi, "~> 2.6"},
+      {:certifi, "~> 2.10"},
       {:cbor, "~> 1.0.0"},
       {:ex_doc, "~> 0.24", only: :dev, runtime: false}
     ]

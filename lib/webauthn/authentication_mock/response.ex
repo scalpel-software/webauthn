@@ -1,7 +1,7 @@
 defmodule Webauthn.AuthenticationMock.Response do
   @moduledoc false
 
-  @counter Application.get_env(:webauthn, :counter, :sign_count)
+  @counter Application.compile_env(:webauthn, :counter, :sign_count)
 
   def verify(%{"challenge" => "missingAuthData"}, _params) do
     {:error, "Missing authenticatorData parameter"}

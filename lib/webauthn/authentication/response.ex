@@ -1,9 +1,9 @@
 defmodule Webauthn.Authentication.Response do
   alias Webauthn.AuthenticatorData
 
-  @counter Application.get_env(:webauthn, :counter_attr, :sign_count)
-  @credential Application.get_env(:webauthn, :credential_id_attr, :credential_id)
-  @public_key Application.get_env(:webauthn, :public_key_attr, :credential_public_key)
+  @counter Application.compile_env(:webauthn, :counter_attr, :sign_count)
+  @credential Application.compile_env(:webauthn, :credential_id_attr, :credential_id)
+  @public_key Application.compile_env(:webauthn, :public_key_attr, :credential_public_key)
 
   # https://www.w3.org/TR/webauthn/#verifying-assertion
   # request expected to look like to have form:

@@ -1,5 +1,5 @@
 defmodule Webauthn.Utils.Crypto do
-  use Bitwise
+  import Bitwise
 
   @certifi_certs Enum.map(:certifi.cacerts(), fn cert ->
     X509.Certificate.from_der!(cert)
