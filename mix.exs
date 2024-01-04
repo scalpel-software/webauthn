@@ -36,7 +36,9 @@ defmodule Webauthn.MixProject do
       {:x509, "~> 0.8"},
       {:certifi, "~> 2.10"},
       {:cbor, "~> 1.0.0"},
-      {:ex_doc, "~> 0.24", only: :dev, runtime: false}
+      {:sobelow, "~> 0.13.0", only: [:dev]},
+      {:ex_doc, "~> 0.24", only: :dev, runtime: false},
+      {:styler, "~> 0.11", only: [:dev, :test], runtime: false}
     ]
   end
 end
