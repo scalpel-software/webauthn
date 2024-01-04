@@ -1,5 +1,4 @@
 defmodule Webauthn.AttestationStatement.AndroidKeyTest do
-
   # It is shockingly difficult to find a certificate sample to test the Android key
   # As of right now there are blank placeholders in both the webauthn and FIDO docs
   # We are using the value taken from this u2f repo of Google's

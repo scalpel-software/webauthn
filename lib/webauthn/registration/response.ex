@@ -1,5 +1,7 @@
 defmodule Webauthn.Registration.Response do
-  alias Webauthn.{AuthenticatorData, AttestationStatement}
+  @moduledoc false
+  alias Webauthn.AttestationStatement
+  alias Webauthn.AuthenticatorData
 
   # Steps for Relying Party to follow when registering a new credential
   # https://www.w3.org/TR/webauthn/#registering-a-new-credential
@@ -18,12 +20,10 @@ defmodule Webauthn.Registration.Response do
          :ok <- user_present?(auth_data),
          :ok <- user_verified?(registration, auth_data),
          :ok <- client_extension_verified?(auth_data),
-         client_hash <- :crypto.hash(:sha256, raw_client_json),
+         client_hash = :crypto.hash(:sha256, raw_client_json),
          {:ok, attest_data} <- attestation?(attestation, auth_data, client_hash),
          :ok <- trustworthy?(attest_data, trusted_types()) do
       {:ok, auth_data}
-    else
-      error -> error
     end
   end
 
@@ -62,6 +62,7 @@ defmodule Webauthn.Registration.Response do
   defp user_present?(_data), do: {:error, "User not present"}
 
   defp user_verified?(_reg, %AuthenticatorData{user_verified: 1}), do: :ok
+
   defp user_verified?(registration, _data) do
     registration
     |> Map.get("authenticatorSelection", %{})

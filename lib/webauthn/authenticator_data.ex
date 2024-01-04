@@ -1,10 +1,10 @@
 defmodule Webauthn.AuthenticatorData do
-  alias Webauthn.AuthenticatorData
-
   @moduledoc """
   Information about the authenticator data can be found at the link below
   https://www.w3.org/TR/webauthn/#authenticator-data
   """
+
+  alias Webauthn.AuthenticatorData
 
   defstruct [
     :acd_included,
@@ -31,39 +31,48 @@ defmodule Webauthn.AuthenticatorData do
   def parse(_other), do: {:error, "Invalid authenticator data format"}
 
   def parse_rp_id(<<rp_id_hash::binary-size(32), rest::binary>>, ad) do
-    parse_flags(rest, Map.merge(ad, %{rp_id_hash: rp_id_hash}))
+    parse_flags(rest, Map.put(ad, :rp_id_hash, rp_id_hash))
   end
 
-  defp parse_flags(<<ed::size(1), at::size(1), _rfu2::size(3),
-    uv::size(1), _rfu1::size(1), up::size(1), rest::binary>>, ad) do
-
-    parse_sign_count(rest, Map.merge(ad, %{
-      acd_included: at,
-      extension_included: ed,
-      user_present: up,
-      user_verified: uv
-    }))
+  defp parse_flags(
+         <<ed::size(1), at::size(1), _rfu2::size(3), uv::size(1), _rfu1::size(1), up::size(1),
+           rest::binary>>,
+         ad
+       ) do
+    parse_sign_count(
+      rest,
+      Map.merge(ad, %{
+        acd_included: at,
+        extension_included: ed,
+        user_present: up,
+        user_verified: uv
+      })
+    )
   end
 
   defp parse_sign_count(<<sign_count::integer-size(32), rest::binary>>, ad) do
-    parse_acd(rest, Map.merge(ad, %{sign_count: sign_count}))
+    parse_acd(rest, Map.put(ad, :sign_count, sign_count))
   end
 
   # https://www.w3.org/TR/webauthn/#sec-attested-credential-data
-  defp parse_acd(<<aaguid::binary-size(16), cred_len::integer-size(16),
-    cred_id::binary-size(cred_len), pk_bin::binary>>, %AuthenticatorData{acd_included: 1} = ad) do
-
+  defp parse_acd(
+         <<aaguid::binary-size(16), cred_len::integer-size(16), cred_id::binary-size(cred_len),
+           pk_bin::binary>>,
+         %AuthenticatorData{acd_included: 1} = ad
+       ) do
     case CBOR.decode(pk_bin) do
       {:ok, public_key, rest} ->
-        parse_extensions(rest, Map.merge(ad, %{
-          attested_credential_data: %{
+        parse_extensions(
+          rest,
+          Map.put(ad, :attested_credential_data, %{
             aaguid: aaguid,
             credential_id: cred_id,
             credential_public_key: public_key
-          }
-        }))
+          })
+        )
 
-      error -> error
+      error ->
+        error
     end
   end
 
@@ -72,7 +81,7 @@ defmodule Webauthn.AuthenticatorData do
   # https://www.w3.org/TR/webauthn/#extensions
   defp parse_extensions(binary, %AuthenticatorData{extension_included: 1} = ad) do
     case CBOR.decode(binary) do
-      {:ok, extensions, _rest} -> {:ok, Map.merge(ad, %{extensions: extensions})}
+      {:ok, extensions, _rest} -> {:ok, Map.put(ad, :extensions, extensions)}
       error -> error
     end
   end

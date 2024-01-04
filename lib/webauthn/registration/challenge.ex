@@ -106,19 +106,21 @@ defmodule Webauthn.Registration.Challenge do
   # https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredentialCreationOptions/rp
   defp relying_party(%{rp: rp}), do: rp
   defp relying_party(%{"rp" => rp}), do: rp
+
   defp relying_party(_options) do
     Application.get_env(:webauthn, :relying_party) ||
-    raise ArgumentError, @rp_error
+      raise ArgumentError, @rp_error
   end
 
   # The time (in milliseconds) that the user has to respond to a prompt for
   # registration before an error is returned
   defp timeout_for(%{timeout: timeout}) when is_integer(timeout), do: timeout
   defp timeout_for(%{"timeout" => timeout}) when is_integer(timeout), do: timeout
-  defp timeout_for(_options), do: 60000
+  defp timeout_for(_options), do: 60_000
 
   defp user_details(%{user: user}), do: user
   defp user_details(%{"user" => user}), do: user
+
   defp user_details(_options) do
     raise ArgumentError, @user_error
   end

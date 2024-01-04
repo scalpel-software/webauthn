@@ -1,18 +1,17 @@
 defmodule Webauthn.AttestationStatement.FidoU2F do
   # https://w3c.github.io/webauthn/#sctn-fido-u2f-attestation
-  @secp256r1_oid {1, 2, 840, 10045, 3, 1, 7}
+  @moduledoc false
+  @secp256r1_oid {1, 2, 840, 10_045, 3, 1, 7}
 
   def verify(%{"x5c" => x5c, "sig" => sig}, auth_data, client_hash) do
     with :ok <- x5c_size(x5c),
          {:ok, certificate} <- decode_cert(x5c),
-         public_key <- X509.Certificate.public_key(certificate),
+         public_key = X509.Certificate.public_key(certificate),
          :ok <- check_public_key(public_key),
          {:ok, public_key_u2f} <- ansi_x962(auth_data),
-         verification_data <- build_verification_data(auth_data, client_hash, public_key_u2f),
+         verification_data = build_verification_data(auth_data, client_hash, public_key_u2f),
          :ok <- check_signature(verification_data, tag_to_bytes(sig), public_key) do
       {:ok, {:unknown, [certificate]}}
-    else
-      error -> error
     end
   end
 
@@ -22,6 +21,7 @@ defmodule Webauthn.AttestationStatement.FidoU2F do
   defp x5c_size(_), do: {:error, "FidoU2F: incorrect attestation cert length"}
 
   defp decode_cert(certs) when is_list(certs), do: decode_cert(hd(certs))
+
   defp decode_cert(%CBOR.Tag{tag: :bytes, value: value}) do
     X509.Certificate.from_der(value)
   end
@@ -47,11 +47,11 @@ defmodule Webauthn.AttestationStatement.FidoU2F do
   end
 
   defp build_verification_data(auth_data, client_hash, public_key_u2f) do
-    <<0>>
-    <> auth_data.rp_id_hash
-    <> client_hash
-    <> auth_data.attested_credential_data.credential_id
-    <> public_key_u2f
+    <<0>> <>
+      auth_data.rp_id_hash <>
+      client_hash <>
+      auth_data.attested_credential_data.credential_id <>
+      public_key_u2f
   end
 
   # We can hard code sha256 here, see github issue for reference

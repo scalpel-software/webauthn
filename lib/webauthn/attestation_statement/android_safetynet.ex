@@ -1,5 +1,6 @@
 defmodule Webauthn.AttestationStatement.AndroidSafetynet do
   # https://w3c.github.io/webauthn/#sctn-android-safetynet-attestation
+  @moduledoc false
   @hostname "attest.android.com"
   @required_safetynet_keys [
     "apkPackageName",
@@ -14,8 +15,9 @@ defmodule Webauthn.AttestationStatement.AndroidSafetynet do
   @window_ms 120_000
 
   def verify(%{"response" => response}, auth_data, client_hash) do
-    with expanded <- expand(response),
-         {:ok, [leaf_cert | tail]} <- certification_chain_for(expanded),
+    expanded = expand(response)
+
+    with {:ok, [leaf_cert | tail]} <- certification_chain_for(expanded),
          :ok <- check_safetynet_response(expanded),
          :ok <- matching_nonce?(expanded, auth_data.raw_data <> client_hash),
          :ok <- check_timestamp(expanded),
@@ -24,12 +26,11 @@ defmodule Webauthn.AttestationStatement.AndroidSafetynet do
          :ok <- validate_certificate_chain([leaf_cert | tail]),
          :ok <- verify_signature(leaf_cert, expanded) do
       {:ok, {:basic, [leaf_cert | tail]}}
-    else
-      error -> error
     end
   end
 
   defp expand(%CBOR.Tag{tag: :bytes, value: value}), do: expand(String.split(value, "."))
+
   defp expand([protected, payload, signature]) do
     %{
       "message" => protected <> "." <> payload,
@@ -53,8 +54,8 @@ defmodule Webauthn.AttestationStatement.AndroidSafetynet do
 
   defp valid_safetynet_response?(payload) do
     Enum.all?(@required_safetynet_keys, fn key -> Map.has_key?(payload, key) end) &&
-    Map.get(payload, "ctsProfileMatch") == true &&
-    !Map.has_key?(payload, "error")
+      Map.get(payload, "ctsProfileMatch") == true &&
+      !Map.has_key?(payload, "error")
   end
 
   defp matching_nonce?(%{"payload" => %{"nonce" => nonce}}, bytes) do
@@ -70,7 +71,7 @@ defmodule Webauthn.AttestationStatement.AndroidSafetynet do
   end
 
   defp check_timestamp(timestamp, now) do
-    if timestamp < now && timestamp >= (now - @window_ms) do
+    if timestamp < now && timestamp >= now - @window_ms do
       :ok
     else
       {:error, "Request not completed in allotted time"}
@@ -91,7 +92,7 @@ defmodule Webauthn.AttestationStatement.AndroidSafetynet do
 
   defp in_validity_range?({:Validity, from, until}, time) do
     time >= X509.DateTime.to_datetime(from) &&
-    time <= X509.DateTime.to_datetime(until)
+      time <= X509.DateTime.to_datetime(until)
   end
 
   defp matching_hostname?(certificate) do
@@ -126,7 +127,9 @@ defmodule Webauthn.AttestationStatement.AndroidSafetynet do
   # to automatically fetch the Certificate Revocation List on all certs
   # we recommend that you set it to ':best_effort' as it defaults to 'false'
   defp validate_certificate_chain(root, chain) do
-    case :public_key.pkix_path_validation(root, [root | Enum.reverse(chain)], [{:verify_fun, {&check_revoked/3, {root}}}]) do
+    case :public_key.pkix_path_validation(root, [root | Enum.reverse(chain)], [
+           {:verify_fun, {&check_revoked/3, {root}}}
+         ]) do
       {:ok, _} -> :ok
       {:error, _} -> {:error, "Invalid Android Safetynet certificate"}
     end
@@ -160,5 +163,5 @@ defmodule Webauthn.AttestationStatement.AndroidSafetynet do
   defp digest_alg(%{"protected" => %{"alg" => "ES256"}}), do: :sha256
   defp digest_alg(%{"protected" => %{"alg" => "ES384"}}), do: :sha384
   defp digest_alg(%{"protected" => %{"alg" => "ES512"}}), do: :sha512
-  defp digest_alg(_), do: raise "jws unsupported digest alg"
+  defp digest_alg(_), do: raise("jws unsupported digest alg")
 end

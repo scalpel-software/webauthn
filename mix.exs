@@ -10,7 +10,8 @@ defmodule Webauthn.MixProject do
       version: "0.0.8",
       elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
-      description: "Authenticate users to your web application using public key cryptography by becoming a webauthn relying party",
+      description:
+        "Authenticate users to your web application using public key cryptography by becoming a webauthn relying party",
       package: [
         maintainers: ["tomciopp"],
         licenses: ["MIT"],

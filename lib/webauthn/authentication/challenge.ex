@@ -1,4 +1,5 @@
 defmodule Webauthn.Authentication.Challenge do
+  @moduledoc false
   @rp_error "Webauthn: Please set a relying party"
 
   def generate(challenge, options) do
@@ -29,16 +30,17 @@ defmodule Webauthn.Authentication.Challenge do
   # https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredentialCreationOptions/rp
   defp relying_party(%{rp: rp}), do: rp
   defp relying_party(%{"rp" => rp}), do: rp
+
   defp relying_party(_options) do
     Application.get_env(:webauthn, :relying_party) ||
-    raise ArgumentError, @rp_error
+      raise ArgumentError, @rp_error
   end
 
   # The time (in milliseconds) that the user has to respond to a prompt for
   # registration before an error is returned
   defp timeout_for(%{timeout: timeout}) when is_integer(timeout), do: timeout
   defp timeout_for(%{"timeout" => timeout}) when is_integer(timeout), do: timeout
-  defp timeout_for(_options), do: 60000
+  defp timeout_for(_options), do: 60_000
 
   defp user_verification(%{user_verification: "discouraged"}), do: "discouraged"
   defp user_verification(%{"user_verification" => "discouraged"}), do: "discouraged"

@@ -1,5 +1,5 @@
 defmodule Webauthn.Cose do
-
+  @moduledoc false
   @okp 1
   @ec2 2
   @rsa 3
@@ -8,7 +8,7 @@ defmodule Webauthn.Cose do
   @okp_curves [4, 5]
   @ec2_curves [1, 2, 3]
 
-  @sha_digests [-65535, -40]
+  @sha_digests [-65_535, -40]
   @sha256_digests [-257, -41, -37, -10, -7, 4, 5]
   @sha384_digests [-258, -38, -35, 6]
   @sha512_digests [-259, -42, -39, -36, -11, 7]
@@ -38,10 +38,11 @@ defmodule Webauthn.Cose do
   # The first octet of the OCTET STRING indicates whether the key is
   # compressed or uncompressed.  The uncompressed form is indicated by 0x04
   def to_public_key(%{1 => @ec2, -2 => x, -3 => y, -1 => crv}) when crv in @ec2_curves do
-    {:ok, {
-      {:ECPoint, <<4>> <> tag_to_bytes(x) <> tag_to_bytes(y)},
-      {:namedCurve, named_curve(crv)}
-    }}
+    {:ok,
+     {
+       {:ECPoint, <<4>> <> tag_to_bytes(x) <> tag_to_bytes(y)},
+       {:namedCurve, named_curve(crv)}
+     }}
   end
 
   # rsa - Rivest-Shamir-Adleman cryptosystem (RSA) keys
@@ -67,6 +68,7 @@ defmodule Webauthn.Cose do
   defp tag_to_bytes(value), do: value
 
   defp rsa_int(%CBOR.Tag{tag: :bytes, value: value}), do: rsa_int(value)
+
   defp rsa_int(value) do
     size = byte_size(value)
     <<result::integer-size(size)-unit(8)>> = value

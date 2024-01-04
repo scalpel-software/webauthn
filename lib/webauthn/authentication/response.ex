@@ -1,4 +1,5 @@
 defmodule Webauthn.Authentication.Response do
+  @moduledoc false
   alias Webauthn.AuthenticatorData
 
   @counter Application.compile_env(:webauthn, :counter_attr, :sign_count)
@@ -42,18 +43,17 @@ defmodule Webauthn.Authentication.Response do
          :ok <- user_verified?(request, auth_data),
          :ok <- user_handle?(request["userHandle"], params["userHandle"]),
          :ok <- extensions?(auth_data),
-         cdata_hash <- :crypto.hash(:sha256, cdata),
-         stored_public_key <- Map.get(credential, @public_key, nil),
+         cdata_hash = :crypto.hash(:sha256, cdata),
+         stored_public_key = Map.get(credential, @public_key, nil),
          {:ok, public_key} <- Webauthn.Cose.to_public_key(stored_public_key),
          {:ok, digest} <- Webauthn.Cose.digest_for(stored_public_key),
          :ok <- valid_signature?(auth_bin <> cdata_hash, digest, signature, public_key) do
       signature_count(auth_data, credential)
-    else
-      error -> error
     end
   end
 
   def decode_auth_data(%{"response" => response}), do: decode_auth_data(response)
+
   def decode_auth_data(%{"authenticatorData" => auth_data}) do
     case Base.url_decode64(auth_data, padding: false) do
       {:ok, data} -> parse_auth_data(data)
@@ -71,6 +71,7 @@ defmodule Webauthn.Authentication.Response do
   end
 
   def decode_json(%{"response" => response}), do: decode_json(response)
+
   def decode_json(%{"clientDataJSON" => raw_json}) do
     case Jason.decode(raw_json) do
       {:ok, json} -> {:ok, {raw_json, json}}
@@ -81,6 +82,7 @@ defmodule Webauthn.Authentication.Response do
   def decode_json(_params), do: {:error, "Missing clientDataJSON parameter"}
 
   def decode_signature(%{"response" => response}), do: decode_signature(response)
+
   def decode_signature(%{"signature" => signature}) do
     Base.url_decode64(signature, padding: false)
   end
@@ -95,6 +97,7 @@ defmodule Webauthn.Authentication.Response do
   end
 
   def find_credential([], _), do: {:error, "Could not find a matching credential"}
+
   def find_credential([head | tail], key_id) do
     if Webauthn.Utils.Crypto.secure_compare(Map.get(head, @credential, ""), key_id) do
       {:ok, head}

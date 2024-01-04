@@ -1,6 +1,7 @@
 defmodule Webauthn.AuthenticatorDataTest do
-  alias Webauthn.AuthenticatorData
   use ExUnit.Case, async: true
+
+  alias Webauthn.AuthenticatorData
 
   defp packed_attestation do
     "o2NmbXRmcGFja2VkZ2F0dFN0bXSjY2FsZyZjc2lnWEgwRgIhAIsK0Wr9tmud-waIYoQw20UWi7DL_gDx_PNG3PB57eHLAiEAtRyd-4JI2pCVX-dDz4mbHc_AkvC3d_4qnBBa3n2I_hVjeDVjg1kCRTCCAkEwggHooAMCAQICEBWfe8LNiRjxKGuTSPqfM-IwCgYIKoZIzj0EAwIwSTELMAkGA1UEBhMCQ04xHTAbBgNVBAoMFEZlaXRpYW4gVGVjaG5vbG9naWVzMRswGQYDVQQDDBJGZWl0aWFuIEZJRE8yIENBLTEwIBcNMTgwNDExMDAwMDAwWhgPMjAzMzA0MTAyMzU5NTlaMG8xCzAJBgNVBAYTAkNOMR0wGwYDVQQKDBRGZWl0aWFuIFRlY2hub2xvZ2llczEiMCAGA1UECwwZQXV0aGVudGljYXRvciBBdHRlc3RhdGlvbjEdMBsGA1UEAwwURlQgQmlvUGFzcyBGSURPMiBVU0IwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASABnVcWfvJSbAVqNIKkliXvoMKsu_oLPiP7aCQlmPlSMcfEScFM7QkRnidTP7hAUOKlOmDPeIALC8qHddvTdtdo4GJMIGGMB0GA1UdDgQWBBR6VIJCgGLYiuevhJglxK-RqTSY8jAfBgNVHSMEGDAWgBRNO9jEZxUbuxPo84TYME-daRXAgzAMBgNVHRMBAf8EAjAAMBMGCysGAQQBguUcAgEBBAQDAgUgMCEGCysGAQQBguUcAQEEBBIEEEI4MkVENzNDOEZCNEU1QTIwCgYIKoZIzj0EAwIDRwAwRAIgJEtFo76I3LfgJaLGoxLP-4btvCdKIsEFLjFIUfDosIcCIDQav04cJPILGnPVPazCqfkVtBuyOmsBbx_v-ODn-JDAWQH_MIIB-zCCAaCgAwIBAgIQFZ97ws2JGPEoa5NI-p8z4TAKBggqhkjOPQQDAjBLMQswCQYDVQQGEwJDTjEdMBsGA1UECgwURmVpdGlhbiBUZWNobm9sb2dpZXMxHTAbBgNVBAMMFEZlaXRpYW4gRklETyBSb290IENBMCAXDTE4MDQxMDAwMDAwMFoYDzIwMzgwNDA5MjM1OTU5WjBJMQswCQYDVQQGEwJDTjEdMBsGA1UECgwURmVpdGlhbiBUZWNobm9sb2dpZXMxGzAZBgNVBAMMEkZlaXRpYW4gRklETzIgQ0EtMTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABI5-YAnswRZlzKD6w-lv5Qg7lW1XJRHrWzL01mc5V91n2LYXNR3_S7mA5gupuTO5mjQw8xfqIRMHVr1qB3TedY-jZjBkMB0GA1UdDgQWBBRNO9jEZxUbuxPo84TYME-daRXAgzAfBgNVHSMEGDAWgBTRoZhNgX_DuWv2B2e9UBL-kEXxVDASBgNVHRMBAf8ECDAGAQH_AgEAMA4GA1UdDwEB_wQEAwIBBjAKBggqhkjOPQQDAgNJADBGAiEA-3-j0kBHoRFQwnhWbSHMkBaY7KF_TztINFN5ymDkwmUCIQDrCkPBiMHXvYg-kSRgVsKwuVtYonRvC588qRwpLStZ7FkB3DCCAdgwggF-oAMCAQICEBWfe8LNiRjxKGuTSPqfM9YwCgYIKoZIzj0EAwIwSzELMAkGA1UEBhMCQ04xHTAbBgNVBAoMFEZlaXRpYW4gVGVjaG5vbG9naWVzMR0wGwYDVQQDDBRGZWl0aWFuIEZJRE8gUm9vdCBDQTAgFw0xODA0MDEwMDAwMDBaGA8yMDQ4MDMzMTIzNTk1OVowSzELMAkGA1UEBhMCQ04xHTAbBgNVBAoMFEZlaXRpYW4gVGVjaG5vbG9naWVzMR0wGwYDVQQDDBRGZWl0aWFuIEZJRE8gUm9vdCBDQTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJ3wCm47zF9RMtW-pPlkEHTVTLfSYBlsidz7zOAUiuV6k36PvtKAI_-LZ8MiC9BxQUfUrfpLY6klw344lwLq7POjQjBAMB0GA1UdDgQWBBTRoZhNgX_DuWv2B2e9UBL-kEXxVDAPBgNVHRMBAf8EBTADAQH_MA4GA1UdDwEB_wQEAwIBBjAKBggqhkjOPQQDAgNIADBFAiEAt7E9ZQYxnhfsSk6c1dSmFNnJGoU3eJiycs2DoWh7-IoCIA9iWJH8h-UOAaaPK66DtCLe6GIxdpIMv3kmd1PRpWqsaGF1dGhEYXRhWOSVaQiPHs7jIylUA129ENfK45EwWidRtVm7j9fLsim91EEAAAABQjgyRUQ3M0M4RkI0RTVBMgBgsL39APyTmisrjh11vghaqNfuruLQmCfR0c1ryKtaQ81jkEhNa5u9xLTnkibvXC9YpzBLFwWEZ3k9CR_sxzm_pWYbBOtKxeZu9z2GT8b6QW4iQvRlyumCT3oENx_8401rpQECAyYgASFYIFkdweEE6mWiIAYPDoKz3881Aoa4sn8zkTm0aPKKYBvdIlggtlG32lxrang8M0tojYJ36CL1VMv2pZSzqR_NfvG88bA"
@@ -26,144 +27,187 @@ defmodule Webauthn.AuthenticatorDataTest do
   test "#parse/1 (packed attestation)" do
     {:ok, decoded, _rest} = decode(packed_attestation())
 
-    assert AuthenticatorData.parse(decoded) == {:ok, %AuthenticatorData{
-      acd_included: 1,
-      attested_credential_data: %{
-        aaguid: "B82ED73C8FB4E5A2",
-        credential_id: <<176, 189, 253, 0, 252, 147, 154, 43, 43, 142,
-          29, 117, 190, 8, 90, 168, 215, 238, 174, 226, 208, 152, 39,
-          209, 209, 205, 107, 200, 171, 90, 67, 205, 99, 144, 72, 77,
-          107, 155, 189, 196, 180, 231, 146, 38, 239, 92, 47, 88, 167,
-          48, 75, 23, 5, 132, 103, 121, 61, 9, 31, 236, 199, 57, 191,
-          165, 102, 27, 4, 235, 74, 197, 230, 110, 247, 61, 134, 79,
-          198, 250, 65, 110, 34, 66, 244, 101, 202, 233, 130, 79, 122,
-          4, 55, 31, 252, 227, 77, 107>>,
-        credential_public_key: %{
-          -3 => %CBOR.Tag{
-            tag: :bytes,
-            value: <<182, 81, 183, 218, 92, 107, 106, 120, 60, 51, 75, 104, 141, 130, 119, 232, 34, 245, 84, 203, 246, 165, 148, 179, 169, 31, 205, 126, 241, 188, 241, 176>>
-          },
-          -2 => %CBOR.Tag{
-            tag: :bytes,
-            value: <<89, 29, 193, 225, 4, 234, 101, 162, 32, 6, 15, 14, 130, 179, 223, 207, 53, 2, 134, 184, 178, 127, 51, 145, 57, 180, 104, 242, 138, 96, 27, 221>>
-          },
-          -1 => 1,
-          1 => 2,
-          3 => -7
-        }
-      },
-      extension_included: 0,
-      extensions: nil,
-      raw_data: decoded["authData"].value,
-      rp_id_hash: <<149, 105, 8, 143, 30, 206, 227, 35, 41, 84, 3, 93, 189, 16, 215, 202, 227, 145, 48, 90, 39, 81, 181, 89, 187, 143, 215, 203, 178, 41, 189, 212>>,
-      user_present: 1,
-      user_verified: 0,
-      sign_count: 1
-    }}
+    assert AuthenticatorData.parse(decoded) ==
+             {:ok,
+              %AuthenticatorData{
+                acd_included: 1,
+                attested_credential_data: %{
+                  aaguid: "B82ED73C8FB4E5A2",
+                  credential_id:
+                    <<176, 189, 253, 0, 252, 147, 154, 43, 43, 142, 29, 117, 190, 8, 90, 168, 215,
+                      238, 174, 226, 208, 152, 39, 209, 209, 205, 107, 200, 171, 90, 67, 205, 99,
+                      144, 72, 77, 107, 155, 189, 196, 180, 231, 146, 38, 239, 92, 47, 88, 167, 48,
+                      75, 23, 5, 132, 103, 121, 61, 9, 31, 236, 199, 57, 191, 165, 102, 27, 4, 235,
+                      74, 197, 230, 110, 247, 61, 134, 79, 198, 250, 65, 110, 34, 66, 244, 101, 202,
+                      233, 130, 79, 122, 4, 55, 31, 252, 227, 77, 107>>,
+                  credential_public_key: %{
+                    -3 => %CBOR.Tag{
+                      tag: :bytes,
+                      value:
+                        <<182, 81, 183, 218, 92, 107, 106, 120, 60, 51, 75, 104, 141, 130, 119, 232,
+                          34, 245, 84, 203, 246, 165, 148, 179, 169, 31, 205, 126, 241, 188, 241,
+                          176>>
+                    },
+                    -2 => %CBOR.Tag{
+                      tag: :bytes,
+                      value:
+                        <<89, 29, 193, 225, 4, 234, 101, 162, 32, 6, 15, 14, 130, 179, 223, 207, 53,
+                          2, 134, 184, 178, 127, 51, 145, 57, 180, 104, 242, 138, 96, 27, 221>>
+                    },
+                    -1 => 1,
+                    1 => 2,
+                    3 => -7
+                  }
+                },
+                extension_included: 0,
+                extensions: nil,
+                raw_data: decoded["authData"].value,
+                rp_id_hash:
+                  <<149, 105, 8, 143, 30, 206, 227, 35, 41, 84, 3, 93, 189, 16, 215, 202, 227, 145,
+                    48, 90, 39, 81, 181, 89, 187, 143, 215, 203, 178, 41, 189, 212>>,
+                user_present: 1,
+                user_verified: 0,
+                sign_count: 1
+              }}
   end
 
   test "#parse/1 (tpm attestation)" do
     {:ok, decoded, _rest} = decode(tpm_attestation())
 
-    assert AuthenticatorData.parse(decoded) == {:ok, %AuthenticatorData{
-      acd_included: 1,
-      attested_credential_data: %{
-        aaguid: <<8, 152, 112, 88, 202, 220, 75, 129, 182, 225, 48, 222, 80, 220, 190, 150>>,
-        credential_id: <<133, 108, 221, 22, 35, 219, 56, 196, 57, 40, 208, 108, 50, 27, 62, 101, 232, 124, 23, 72, 147, 30, 177, 250, 221, 130, 164, 175, 18, 69, 130, 52>>,
-        credential_public_key: %{
-          -2 => %CBOR.Tag{tag: :bytes, value: <<1, 0, 1>>},
-          -1 => %CBOR.Tag{
-            tag: :bytes,
-            value: <<197, 218, 111, 77, 147, 87, 189, 226, 2, 245, 197, 88, 205, 10, 49, 86, 210,
-              84, 242, 224, 173, 154, 181, 121, 49, 249, 130, 107, 116, 125, 225, 172, 79, 41, 214,
-              7, 8, 116, 220, 229, 121, 16, 225, 152, 68, 73, 157, 142, 66, 71, 3, 57, 177, 112, 208,
-              34, 181, 1, 171, 136, 233, 194, 244, 237, 48, 46, 71, 25, 199, 13, 235, 232, 132, 36, 3,
-              237, 155, 223, 194, 39, 48, 166, 26, 27, 112, 246, 22, 197, 241, 183, 0, 202, 207, 120,
-              70, 19, 125, 196, 178, 212, 105, 168, 225, 90, 171, 79, 173, 134, 87, 8, 64, 34, 210,
-              143, 68, 217, 7, 83, 35, 18, 107, 112, 7, 201, 129, 147, 159, 223, 114, 76, 175, 79,
-              190, 71, 80, 64, 67, 26, 78, 160, 100, 67, 11, 203, 44, 250, 215, 208, 91, 219,
-              159, 100, 181, 176, 224, 149, 46, 207, 134, 121, 39, 61, 108, 109, 250, 129,
-              96, 31, 20, 80, 51, 22, 161, 61, 7, 130, 195, 26, 62, 107, 221, 237, 61, 123,
-              196, 107, 193, 250, 155, 239, 13, 255, 131, 183, 222, 175, 20, 107, 88, 44,
-              70, 68, 130, 26, 60, 98, 237, 186, 166, 190, 66, 43, 240, 78, 67, 237, 175,
-              95, 211, 120, 48, 134, 21, 61, 115, 97, 162, 3, 6, 26, 98, 152, 171, 38, 225,
-              51, 124, 161, 201, 237, 6, 116, 26, 89, 5, 71, 121, 136, 231, 32, 48, 78, 174, 24, 157, 127>>
-          },
-          1 => 3,
-          3 => -257
-        }
-      },
-      extension_included: 0,
-      extensions: nil,
-      raw_data: decoded["authData"].value,
-      rp_id_hash: <<149, 105, 8, 143, 30, 206, 227, 35, 41, 84, 3, 93, 189, 16, 215, 202, 227, 145, 48, 90, 39, 81, 181, 89, 187, 143, 215, 203, 178, 41, 189, 212>>,
-      user_present: 1,
-      user_verified: 1,
-      sign_count: 0
-    }}
+    assert AuthenticatorData.parse(decoded) ==
+             {:ok,
+              %AuthenticatorData{
+                acd_included: 1,
+                attested_credential_data: %{
+                  aaguid:
+                    <<8, 152, 112, 88, 202, 220, 75, 129, 182, 225, 48, 222, 80, 220, 190, 150>>,
+                  credential_id:
+                    <<133, 108, 221, 22, 35, 219, 56, 196, 57, 40, 208, 108, 50, 27, 62, 101, 232,
+                      124, 23, 72, 147, 30, 177, 250, 221, 130, 164, 175, 18, 69, 130, 52>>,
+                  credential_public_key: %{
+                    -2 => %CBOR.Tag{tag: :bytes, value: <<1, 0, 1>>},
+                    -1 => %CBOR.Tag{
+                      tag: :bytes,
+                      value:
+                        <<197, 218, 111, 77, 147, 87, 189, 226, 2, 245, 197, 88, 205, 10, 49, 86,
+                          210, 84, 242, 224, 173, 154, 181, 121, 49, 249, 130, 107, 116, 125, 225,
+                          172, 79, 41, 214, 7, 8, 116, 220, 229, 121, 16, 225, 152, 68, 73, 157,
+                          142, 66, 71, 3, 57, 177, 112, 208, 34, 181, 1, 171, 136, 233, 194, 244,
+                          237, 48, 46, 71, 25, 199, 13, 235, 232, 132, 36, 3, 237, 155, 223, 194,
+                          39, 48, 166, 26, 27, 112, 246, 22, 197, 241, 183, 0, 202, 207, 120, 70,
+                          19, 125, 196, 178, 212, 105, 168, 225, 90, 171, 79, 173, 134, 87, 8, 64,
+                          34, 210, 143, 68, 217, 7, 83, 35, 18, 107, 112, 7, 201, 129, 147, 159,
+                          223, 114, 76, 175, 79, 190, 71, 80, 64, 67, 26, 78, 160, 100, 67, 11, 203,
+                          44, 250, 215, 208, 91, 219, 159, 100, 181, 176, 224, 149, 46, 207, 134,
+                          121, 39, 61, 108, 109, 250, 129, 96, 31, 20, 80, 51, 22, 161, 61, 7, 130,
+                          195, 26, 62, 107, 221, 237, 61, 123, 196, 107, 193, 250, 155, 239, 13,
+                          255, 131, 183, 222, 175, 20, 107, 88, 44, 70, 68, 130, 26, 60, 98, 237,
+                          186, 166, 190, 66, 43, 240, 78, 67, 237, 175, 95, 211, 120, 48, 134, 21,
+                          61, 115, 97, 162, 3, 6, 26, 98, 152, 171, 38, 225, 51, 124, 161, 201, 237,
+                          6, 116, 26, 89, 5, 71, 121, 136, 231, 32, 48, 78, 174, 24, 157, 127>>
+                    },
+                    1 => 3,
+                    3 => -257
+                  }
+                },
+                extension_included: 0,
+                extensions: nil,
+                raw_data: decoded["authData"].value,
+                rp_id_hash:
+                  <<149, 105, 8, 143, 30, 206, 227, 35, 41, 84, 3, 93, 189, 16, 215, 202, 227, 145,
+                    48, 90, 39, 81, 181, 89, 187, 143, 215, 203, 178, 41, 189, 212>>,
+                user_present: 1,
+                user_verified: 1,
+                sign_count: 0
+              }}
   end
 
   test "#parse/1 (android attestation)" do
     {:ok, decoded, _rest} = decode(android_attestation())
 
-    assert AuthenticatorData.parse(decoded) == {:ok, %AuthenticatorData{
-      acd_included: 1,
-      attested_credential_data: %{
-        aaguid: <<0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0>>,
-        credential_id: <<168, 37, 196, 124, 159, 157, 18, 128, 101, 90, 162, 37, 210, 42, 182, 167,
-          248, 35, 215, 113, 210, 131, 186, 255, 48, 14, 241, 57, 195, 162, 59, 196,
-          100, 10, 182, 13, 153, 1, 200, 141, 95, 114, 133, 149, 64, 74, 191, 59, 113, 75,
-          31, 150, 142, 195, 54, 235, 175, 26, 201, 235, 149, 57, 117, 138>>,
-        credential_public_key: %{
-          -3 => %CBOR.Tag{
-            tag: :bytes,
-            value: <<235, 210, 36, 162, 210, 248, 136, 40, 211, 204, 76, 135, 77, 219, 200, 22, 54, 105, 28, 192, 234, 250, 13, 12, 122, 232, 195, 223, 127, 115, 157, 155>>
-          },
-          -2 => %CBOR.Tag{tag: :bytes, value: <<135, 147, 137, 125, 132, 67, 205, 81, 136, 163, 2, 170, 83, 158, 192, 158, 133, 99, 141, 217, 166, 140, 104, 189, 206, 83, 36, 140, 5, 85, 244, 48>>},
-          -1 => 1,
-          1 => 2,
-          3 => -7
-        }
-      },
-      extension_included: 0,
-      extensions: nil,
-      raw_data: decoded["authData"].value,
-      rp_id_hash: <<149, 105, 8, 143, 30, 206, 227, 35, 41, 84, 3, 93, 189, 16, 215, 202, 227, 145, 48, 90, 39, 81, 181, 89, 187, 143, 215, 203, 178, 41, 189, 212>>,
-      user_present: 0,
-      user_verified: 0,
-      sign_count: 0
-    }}
+    assert AuthenticatorData.parse(decoded) ==
+             {:ok,
+              %AuthenticatorData{
+                acd_included: 1,
+                attested_credential_data: %{
+                  aaguid: <<0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0>>,
+                  credential_id:
+                    <<168, 37, 196, 124, 159, 157, 18, 128, 101, 90, 162, 37, 210, 42, 182, 167,
+                      248, 35, 215, 113, 210, 131, 186, 255, 48, 14, 241, 57, 195, 162, 59, 196,
+                      100, 10, 182, 13, 153, 1, 200, 141, 95, 114, 133, 149, 64, 74, 191, 59, 113,
+                      75, 31, 150, 142, 195, 54, 235, 175, 26, 201, 235, 149, 57, 117, 138>>,
+                  credential_public_key: %{
+                    -3 => %CBOR.Tag{
+                      tag: :bytes,
+                      value:
+                        <<235, 210, 36, 162, 210, 248, 136, 40, 211, 204, 76, 135, 77, 219, 200, 22,
+                          54, 105, 28, 192, 234, 250, 13, 12, 122, 232, 195, 223, 127, 115, 157,
+                          155>>
+                    },
+                    -2 => %CBOR.Tag{
+                      tag: :bytes,
+                      value:
+                        <<135, 147, 137, 125, 132, 67, 205, 81, 136, 163, 2, 170, 83, 158, 192, 158,
+                          133, 99, 141, 217, 166, 140, 104, 189, 206, 83, 36, 140, 5, 85, 244, 48>>
+                    },
+                    -1 => 1,
+                    1 => 2,
+                    3 => -7
+                  }
+                },
+                extension_included: 0,
+                extensions: nil,
+                raw_data: decoded["authData"].value,
+                rp_id_hash:
+                  <<149, 105, 8, 143, 30, 206, 227, 35, 41, 84, 3, 93, 189, 16, 215, 202, 227, 145,
+                    48, 90, 39, 81, 181, 89, 187, 143, 215, 203, 178, 41, 189, 212>>,
+                user_present: 0,
+                user_verified: 0,
+                sign_count: 0
+              }}
   end
 
   test "#parse/1 (u2f attestation)" do
     {:ok, decoded, _rest} = decode(u2f_attestation())
 
-    assert AuthenticatorData.parse(decoded) == {:ok, %AuthenticatorData{
-      acd_included: 1,
-      attested_credential_data: %{
-        aaguid: <<0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0>>,
-        credential_id: <<6, 143, 149, 140, 115, 164, 37, 156, 188, 14, 57, 194, 38, 114, 28, 208, 236,
-          109, 245, 0, 51, 230, 234, 76, 117, 34, 113, 53, 183, 126, 27, 32, 40, 232,
-          195, 72, 188, 240, 91, 245, 139, 20, 148, 77, 25, 37, 166, 150, 94, 213,
-          135, 228, 84, 50, 61, 46, 155, 79, 247, 186, 247, 194, 34, 173>>,
-        credential_public_key: %{
-          -3 => %CBOR.Tag{
-            tag: :bytes,
-            value: <<24, 211, 83, 26, 238, 105, 216, 197, 20, 201, 214, 149, 30, 107, 60, 154, 246, 222, 192, 73, 79, 218, 158, 197, 143, 79, 9, 207, 104, 242, 25, 147>>
-          },
-          -2 => %CBOR.Tag{tag: :bytes, value: <<53, 115, 208, 8, 120, 126, 108, 55, 172, 117, 67, 237, 170, 71, 187, 246, 231, 155, 100, 120, 102, 214, 179, 65, 2, 8, 60, 55, 230, 66, 70, 4>>},
-          -1 => 1,
-          1 => 2,
-          3 => -7
-        }
-      },
-      extension_included: 0,
-      extensions: nil,
-      raw_data: decoded["authData"].value,
-      rp_id_hash: <<73, 150, 13, 229, 136, 14, 140, 104, 116, 52, 23, 15, 100, 118, 96, 91, 143, 228, 174, 185, 162, 134, 50, 199, 153, 92, 243, 186, 131, 29, 151, 99>>,
-      user_present: 1,
-      user_verified: 0,
-      sign_count: 0
-    }}
+    assert AuthenticatorData.parse(decoded) ==
+             {:ok,
+              %AuthenticatorData{
+                acd_included: 1,
+                attested_credential_data: %{
+                  aaguid: <<0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0>>,
+                  credential_id:
+                    <<6, 143, 149, 140, 115, 164, 37, 156, 188, 14, 57, 194, 38, 114, 28, 208, 236,
+                      109, 245, 0, 51, 230, 234, 76, 117, 34, 113, 53, 183, 126, 27, 32, 40, 232,
+                      195, 72, 188, 240, 91, 245, 139, 20, 148, 77, 25, 37, 166, 150, 94, 213, 135,
+                      228, 84, 50, 61, 46, 155, 79, 247, 186, 247, 194, 34, 173>>,
+                  credential_public_key: %{
+                    -3 => %CBOR.Tag{
+                      tag: :bytes,
+                      value:
+                        <<24, 211, 83, 26, 238, 105, 216, 197, 20, 201, 214, 149, 30, 107, 60, 154,
+                          246, 222, 192, 73, 79, 218, 158, 197, 143, 79, 9, 207, 104, 242, 25, 147>>
+                    },
+                    -2 => %CBOR.Tag{
+                      tag: :bytes,
+                      value:
+                        <<53, 115, 208, 8, 120, 126, 108, 55, 172, 117, 67, 237, 170, 71, 187, 246,
+                          231, 155, 100, 120, 102, 214, 179, 65, 2, 8, 60, 55, 230, 66, 70, 4>>
+                    },
+                    -1 => 1,
+                    1 => 2,
+                    3 => -7
+                  }
+                },
+                extension_included: 0,
+                extensions: nil,
+                raw_data: decoded["authData"].value,
+                rp_id_hash:
+                  <<73, 150, 13, 229, 136, 14, 140, 104, 116, 52, 23, 15, 100, 118, 96, 91, 143,
+                    228, 174, 185, 162, 134, 50, 199, 153, 92, 243, 186, 131, 29, 151, 99>>,
+                user_present: 1,
+                user_verified: 0,
+                sign_count: 0
+              }}
   end
 end

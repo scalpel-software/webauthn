@@ -1,11 +1,12 @@
 defmodule Webauthn.AttestationStatement.AndroidKey do
+  @moduledoc false
 
   # https://w3c.github.io/webauthn/#sctn-android-key-attestation
 
   # https://android.googlesource.com/platform/hardware/libhardware/+/master/include/hardware/keymaster_defs.h
   @km_origin_generated 0
   @km_purpose_sign 2
-  @android_key_oid {1, 3, 6, 1, 4, 1, 11129, 2, 1, 17}
+  @android_key_oid {1, 3, 6, 1, 4, 1, 11_129, 2, 1, 17}
 
   @software_enforced_position 3
   @tee_enforced_position 4
@@ -16,8 +17,14 @@ defmodule Webauthn.AttestationStatement.AndroidKey do
   def verify(%{"alg" => alg, "sig" => sig, "x5c" => x5c}, auth_data, client_hash) do
     with {:ok, [cert | tail]} <- certification_chain_for(x5c),
          {:ok, digest} <- Webauthn.Cose.digest_for(alg),
-         public_key <- X509.Certificate.public_key(cert),
-         :ok <- valid_signature?(auth_data.raw_data <> client_hash, digest, tag_to_bytes(sig), public_key),
+         public_key = X509.Certificate.public_key(cert),
+         :ok <-
+           valid_signature?(
+             auth_data.raw_data <> client_hash,
+             digest,
+             tag_to_bytes(sig),
+             public_key
+           ),
          {:ok, auth_public_key} <- Webauthn.Cose.to_public_key(auth_data),
          :ok <- matching_public_key?(auth_public_key, public_key),
          {:ok, key_description} <- find_key_description(cert),
@@ -25,8 +32,6 @@ defmodule Webauthn.AttestationStatement.AndroidKey do
          :ok <- all_applications_not_present?(key_description),
          :ok <- valid_origin_and_purpose(key_description) do
       {:ok, {:basic, [cert | tail]}}
-    else
-      error -> error
     end
   end
 
@@ -85,6 +90,7 @@ defmodule Webauthn.AttestationStatement.AndroidKey do
   end
 
   defp all_applications_not_present?(:asn1_NOVALUE, :asn1_NOVALUE), do: :ok
+
   defp all_applications_not_present?(_soft, _tee) do
     {:error, "Android Key: All application was present in description"}
   end
@@ -114,12 +120,12 @@ defmodule Webauthn.AttestationStatement.AndroidKey do
 
   defp tee_origin_and_purpose(kd) do
     origin?(elem(kd, @tee_enforced_position)) &&
-    purpose?(elem(kd, @tee_enforced_position))
+      purpose?(elem(kd, @tee_enforced_position))
   end
 
   defp software_origin_and_purpose(kd) do
     origin?(elem(kd, @software_enforced_position)) &&
-    purpose?(elem(kd, @software_enforced_position))
+      purpose?(elem(kd, @software_enforced_position))
   end
 
   defp origin?(auth_list) do

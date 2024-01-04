@@ -1,8 +1,11 @@
 defmodule Webauthn.AttestationStatement.Packed do
   # https://www.iso.org/obp/ui/#iso:pub:PUB500001:en
-  @iso3166 MapSet.new(~w(AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU ID IE IL IM IN IO IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TF TG TH TJ TK TLa TM TN TO TR TT TV TW TZ UA UG UM US UY UZ VA VC VE VG VI VN VU WF WS YE YT ZA ZM ZW))
+  @moduledoc false
+  @iso3166 MapSet.new(
+             ~w(AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU ID IE IL IM IN IO IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TF TG TH TJ TK TLa TM TN TO TR TT TV TW TZ UA UG UM US UY UZ VA VC VE VG VI VN VU WF WS YE YT ZA ZM ZW)
+           )
   @basic_constraint {2, 5, 29, 19}
-  @fido_gen_ce {1, 3, 6, 1, 4, 1, 45724, 1, 1, 4}
+  @fido_gen_ce {1, 3, 6, 1, 4, 1, 45_724, 1, 1, 4}
 
   # https://w3c.github.io/webauthn/#sctn-packed-attestation
 
@@ -16,30 +19,27 @@ defmodule Webauthn.AttestationStatement.Packed do
   # attestation type is not ECDAA
   def verify(%{"alg" => alg, "sig" => sig, "x5c" => x5c}, auth_data, client_hash) do
     with {:ok, [leaf_cert | tail]} <- certification_chain_for(x5c),
-         public_key <- X509.Certificate.public_key(leaf_cert),
+         public_key = X509.Certificate.public_key(leaf_cert),
          {:ok, digest} <- Webauthn.Cose.digest_for(alg),
-         :ok <- verify_x5c(auth_data.raw_data <> client_hash, digest, tag_to_bytes(sig), public_key),
+         :ok <-
+           verify_x5c(auth_data.raw_data <> client_hash, digest, tag_to_bytes(sig), public_key),
          :ok <- check_cert_version(leaf_cert),
          :ok <- check_cert_subject_format(leaf_cert),
          :ok <- check_cert_country_code(leaf_cert),
          :ok <- check_cert_extension(leaf_cert, auth_data),
          :ok <- check_basic_constraint(leaf_cert) do
       {:ok, {:unknown, [leaf_cert | tail]}}
-    else
-      error -> error
     end
   end
 
   # self attestation
   def verify(%{"alg" => alg, "sig" => sig}, auth_data, client_hash) do
     with :ok <- check_algorithms(alg, auth_data),
-         message <- auth_data.raw_data <> client_hash,
+         message = auth_data.raw_data <> client_hash,
          {:ok, public_key} <- Webauthn.Cose.to_public_key(auth_data),
          {:ok, digest} <- Webauthn.Cose.digest_for(alg),
          :ok <- check_self_signature(message, digest, tag_to_bytes(sig), public_key) do
       {:ok, {:self, nil}}
-    else
-      error -> error
     end
   end
 
@@ -68,12 +68,16 @@ defmodule Webauthn.AttestationStatement.Packed do
 
   # Format is /C= => /O= => /OU= => /CN=
   defp check_cert_subject_format(cert) do
-    if match?({:rdnSequence, [
-      [{:AttributeTypeAndValue, {2, 5, 4, 6}, _}],
-      [{:AttributeTypeAndValue, {2, 5, 4, 10}, {:utf8String, _}}],
-      [{:AttributeTypeAndValue, {2, 5, 4, 11}, {:utf8String, "Authenticator Attestation"}}],
-      [{:AttributeTypeAndValue, {2, 5, 4, 3}, {:utf8String, _}}]
-    ]}, X509.Certificate.subject(cert)) do
+    if match?(
+         {:rdnSequence,
+          [
+            [{:AttributeTypeAndValue, {2, 5, 4, 6}, _}],
+            [{:AttributeTypeAndValue, {2, 5, 4, 10}, {:utf8String, _}}],
+            [{:AttributeTypeAndValue, {2, 5, 4, 11}, {:utf8String, "Authenticator Attestation"}}],
+            [{:AttributeTypeAndValue, {2, 5, 4, 3}, {:utf8String, _}}]
+          ]},
+         X509.Certificate.subject(cert)
+       ) do
       :ok
     else
       {:error, "Packed: Invalid certificate format"}
