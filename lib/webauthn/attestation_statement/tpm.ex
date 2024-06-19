@@ -279,7 +279,7 @@ defmodule Webauthn.AttestationStatement.TPM do
     |> List.flatten()
     |> Enum.find({nil, nil, "na"}, fn tuple -> elem(tuple, 1) == {2, 23, 133, 2, 1} end)
     |> elem(2)
-    |> String.slice(2..-1)
+    |> String.slice(2..-1//-1)
     |> then(fn id -> MapSet.member?(@tcg_vendor_ids, id) end)
   end
 
