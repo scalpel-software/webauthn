@@ -7,7 +7,7 @@ defmodule Webauthn.MixProject do
   def project do
     [
       app: :webauthn,
-      version: "0.0.8",
+      version: "0.0.9",
       elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
       description:
